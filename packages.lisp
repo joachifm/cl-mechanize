@@ -8,6 +8,22 @@
            #:*history
            #:*page*
            #:*status*
+           #:form
+           #:form-name
+           #:form-action
+           #:form-method
+           #:form-inputs
+           #:link
+           #:link-text
+           #:link-uri
+           #:link-tag
+           #:link-attrs
+           #:page
+           #:page-uri
+           #:page-links
+           #:page-forms
+           #:page-dom
+           #:page-content
            #:fetch
            #:submit
            #:follow

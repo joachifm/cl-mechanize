@@ -19,7 +19,7 @@ Examples:
 (in-package :cl-mechanize-user)
 
 ;; Do a google search
-(get "http://www.google.com")
+(fetch "http://www.google.com")
 (let ((search-form (car (page-forms *page*))))
   (setf (form-inputs search-form)
         '(("q" . "google")))
