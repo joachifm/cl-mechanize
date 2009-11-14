@@ -9,7 +9,9 @@
            #:*page*
            #:*status*
            #:fetch
-           #:submit))
+           #:submit
+           #:follow
+           #:back))
 
 (defpackage :cl-mechanize-user
   (:use :cl :cl-mechanize)

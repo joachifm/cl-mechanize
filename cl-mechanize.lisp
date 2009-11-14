@@ -114,3 +114,16 @@ Handles cookies and history automatically."
                           (page-uri *page*))
          :method (form-method form)
          :parameters (form-inputs form)))
+
+(defun follow (link)
+  "Follow a link."
+  (declare (type link link))
+  (fetch (puri:merge-uris (link-uri link)
+                          (page-uri *page*))))
+
+(defun back ()
+  "Go back in history."
+  (pop *history*)
+  (let ((prev (car *history*)))
+    (let ((*history* nil))
+      (follow prev))))
