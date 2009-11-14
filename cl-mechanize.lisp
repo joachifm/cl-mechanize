@@ -127,3 +127,9 @@ Handles cookies and history automatically."
   (let ((prev (car *history*)))
     (let ((*history* nil))
       (follow prev))))
+
+(defun reload ()
+  "Repeat the current request."
+  (let ((cur (car *history*)))
+    (let ((*history* nil))
+      (follow cur))))

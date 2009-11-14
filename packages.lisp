@@ -27,7 +27,8 @@
            #:fetch
            #:submit
            #:follow
-           #:back))
+           #:back
+           #:reload))
 
 (defpackage :cl-mechanize-user
   (:use :cl :cl-mechanize)
