@@ -20,15 +20,16 @@ implemented as a thin wrapper around [Drakma].
 
     ;; Do a google search
     (fetch "http://www.google.com")
-    (let ((search-form (car (page-forms *page*))))
+    (let* ((page (get-page))
+           (search-form (car (page-forms page))))
       (setf (form-inputs search-form)
             '(("q" . "google")))
       (submit search-form)
       (format t "~A~%" (ppcre:all-matches-as-strings "<title>[a-z].*</title>"
-                                                     (page-content *page*)))
-      (dolist (link (page-links *page*))
+                                                     (page-content page)))
+      (dolist (link (page-links page))
         (format t "~A~%" (link-text link))))
 
     ;; Traverse the DOM
-    (stp:do-recursively (n (page-dom *page*))
+    (stp:do-recursively (n (page-dom (get-page)))
       ..)
