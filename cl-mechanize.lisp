@@ -10,6 +10,7 @@
   "The current page object. Updated automatically by GET.")
 (defvar *status* nil
   "The HTTP status code of the last request.")
+(defvar *state-mutex* (sb-thread:make-mutex :name "State lock"))
 
 (defclass form ()
   ((name
@@ -71,41 +72,42 @@
 (defun fetch (uri &key (method :get) parameters)
   "Send a request and fetch the response.
 Handles cookies and history automatically."
-  (when (null *cookie-jar*)
-    (setf *cookie-jar*
-          (make-instance 'drakma:cookie-jar)))
-  (multiple-value-bind (body status)
-      (drakma:http-request uri
-                           :user-agent *user-agent*
-                           :method method
-                           :parameters parameters)
-    (let ((dom (chtml:parse body (stp:make-builder)))
-          (links nil)
-          (forms nil))
-      (stp:do-recursively (n dom)
-        (when (typep n 'stp:element)
-          (cond ((equal (stp:local-name n) "a")
-                 (push (make-instance 'link
-                                      :text (stp:string-value n)
-                                      :uri (puri:parse-uri (stp:attribute-value n "href"))
-                                      :url (stp:attribute-value n "href")
-                                      :tag :a)
-                        links))
-                ((equal (stp:local-name n) "form")
-                 (push (make-instance 'form
-                                      :name (stp:attribute-value n "name")
-                                      :action (stp:attribute-value n "action"))
-                       forms)))))
-      (setf *page*
-            (make-instance 'page
-                           :uri uri
-                           :links (nreverse links)
-                           :forms (nreverse forms)
-                           :dom dom
-                           :content body))
-      (setf *status* status)
-      (push *page* *history*)
-      *page*)))
+  (sb-thread:with-mutex (*state-mutex*)
+    (when (null *cookie-jar*)
+      (setf *cookie-jar*
+            (make-instance 'drakma:cookie-jar)))
+    (multiple-value-bind (body status)
+        (drakma:http-request uri
+                             :user-agent *user-agent*
+                             :method method
+                             :parameters parameters)
+      (let ((dom (chtml:parse body (stp:make-builder)))
+            (links nil)
+            (forms nil))
+        (stp:do-recursively (n dom)
+          (when (typep n 'stp:element)
+            (cond ((equal (stp:local-name n) "a")
+                   (push (make-instance 'link
+                                        :text (stp:string-value n)
+                                        :uri (puri:parse-uri (stp:attribute-value n "href"))
+                                        :url (stp:attribute-value n "href")
+                                        :tag :a)
+                         links))
+                  ((equal (stp:local-name n) "form")
+                   (push (make-instance 'form
+                                        :name (stp:attribute-value n "name")
+                                        :action (stp:attribute-value n "action"))
+                         forms)))))
+        (setf *page*
+              (make-instance 'page
+                             :uri uri
+                             :links (nreverse links)
+                             :forms (nreverse forms)
+                             :dom dom
+                             :content body))
+        (setf *status* status)
+        (push *page* *history*)
+        *page*))))
 
 (defun submit (form)
   "Submit a form."
@@ -123,13 +125,15 @@ Handles cookies and history automatically."
 
 (defun back ()
   "Go back in history."
-  (pop *history*)
-  (let ((prev (car *history*)))
-    (let ((*history* nil))
-      (follow prev))))
+  (sb-thread:with-mutex (*state-mutex*)
+    (pop *history*)
+    (let ((prev (car *history*)))
+      (let ((*history* nil))
+        (follow prev)))))
 
 (defun reload ()
   "Repeat the current request."
-  (let ((cur (car *history*)))
-    (let ((*history* nil))
-      (follow cur))))
+  (sb-thread:with-mutex (*state-mutex*)
+    (let ((cur (car *history*)))
+      (let ((*history* nil))
+        (follow cur)))))
