@@ -1,3 +1,5 @@
+#-(or sbcl) (error "Implementation not supported.")
+
 (in-package :cl-mechanize)
 
 (defvar *user-agent* "cl-mechanize/0.0"
