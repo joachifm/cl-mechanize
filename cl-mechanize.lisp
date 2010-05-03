@@ -1,6 +1,6 @@
 (in-package :cl-mechanize)
 
-(defvar *user-agent* "SBCL/1.0.31"
+(defvar *user-agent* "cl-mechanize/0.0"
   "User agent string used by GET.")
 (defvar *cookie-jar* nil
   "The current cookie jar object. Updated automatically by GET.")
