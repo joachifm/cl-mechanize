@@ -4,10 +4,6 @@
   (:use :cl)
   (:nicknames :mechanize :net.browser)
   (:export #:*user-agent*
-           #:*cookie-jar*
-           #:*history
-           #:*page*
-           #:*status*
            #:form
            #:form-name
            #:form-action
@@ -24,6 +20,10 @@
            #:page-forms
            #:page-dom
            #:page-content
+           #:get-history
+           #:get-cookies
+           #:get-page
+           #:get-status
            #:fetch
            #:submit
            #:follow

@@ -71,6 +71,26 @@
     :accessor page-content))
   (:documentation "Contains the result of fetching a page."))
 
+(defun get-history ()
+  "Get the list of visited pages, in chronological order."
+  (sb-thread:with-mutex (*state-mutex*)
+    *history*))
+
+(defun get-cookies ()
+  "Get cookie jar."
+  (sb-thread:with-mutex (*state-mutex*)
+    *cookie-jar*))
+
+(defun get-page ()
+  "Get current page."
+  (sb-thread:with-mutex (*state-mutex*)
+    *page*))
+
+(defun get-status ()
+  "Get the HTTP status code of the last request."
+  (sb-thread:with-mutex (*state-mutex*)
+    *status*))
+
 (defun fetch (uri &key (method :get) parameters)
   "Send a request and fetch the response.
 Handles cookies and history automatically."
