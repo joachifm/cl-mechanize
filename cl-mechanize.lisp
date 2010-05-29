@@ -134,16 +134,18 @@ Handles cookies and history automatically."
 (defun submit (form)
   "Submit a form."
   (declare (type form form))
-  (fetch (puri:merge-uris (form-action form)
-                          (page-uri *page*))
-         :method (form-method form)
-         :parameters (form-inputs form)))
+  (sb-thread:with-mutex (*state-mutex*)
+    (fetch (puri:merge-uris (form-action form)
+                            (page-uri *page*))
+           :method (form-method form)
+           :parameters (form-inputs form))))
 
 (defun follow (link)
   "Follow a link."
   (declare (type link link))
-  (fetch (puri:merge-uris (link-uri link)
-                          (page-uri *page*))))
+  (sb-thread:with-mutex (*state-mutex*)
+    (fetch (puri:merge-uris (link-uri link)
+                            (page-uri *page*)))))
 
 (defun back ()
   "Go back in history."
