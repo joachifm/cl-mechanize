@@ -2,7 +2,7 @@
 
 (defpackage :cl-mechanize
   (:use :cl)
-  (:nicknames :mechanize :net.browser)
+  (:nicknames :browser :mechanize :net.browser)
   (:export #:*user-agent*
            #:form
            #:form-name
@@ -32,4 +32,4 @@
 
 (defpackage :cl-mechanize-user
   (:use :cl :cl-mechanize)
-  (:nicknames :mechanize-user :net.browser-user))
+  (:nicknames :browser-user :mechanize-user :net.browser-user))
