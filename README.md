@@ -27,10 +27,10 @@ This package is still in the early stages of development.
     (fetch "http://www.google.com" *browser*)
 
     (let* ((page (browser-page *browser*))
-           (search-from (car (page-forms page))))
-      (setf (form-inputs search-from)
+           (search-form (car (page-forms page))))
+      (setf (form-inputs search-form)
             '(("q" . "google")))
-      (submit search-from *browser*)
+      (submit search-form *browser*)
 
       (let ((results (browser-page *browser*)))
         (format t "~A~%" (ppcre:all-matches-as-strings "<title>[a-z].*</title>"
