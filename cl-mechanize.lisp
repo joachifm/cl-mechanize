@@ -88,6 +88,10 @@
 
 (defun fetch (uri browser &key (method :get) parameters)
   "Send a request and fetch the response."
+  (declare (type (or string puri:uri) uri)
+           (type browser browser)
+           (type keyword method)
+           (type list parameters))
   (multiple-value-bind (body status)
       (drakma:http-request uri
                            :user-agent (browser-user-agent browser)
@@ -123,7 +127,8 @@
 
 (defun submit (form browser)
   "Submit a form on the current page."
-  (declare (type form form))
+  (declare (type form form)
+           (type browser browser))
   (fetch (puri:merge-uris (form-action form)
                           (page-uri (browser-page browser)))
          browser
@@ -132,7 +137,8 @@
 
 (defun follow (link browser)
   "Follow a link on the current page."
-  (declare (type link link))
+  (declare (type link link)
+           (type browser browser))
   (fetch (puri:merge-uris (link-uri link)
                           (page-uri (browser-page browser)))
          browser))
