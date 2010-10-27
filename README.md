@@ -1,6 +1,8 @@
 # About
 CL-MECHANIZE is a [WWW::Mechanize] work-alike for Common Lisp
-implemented as a thin wrapper around [Drakma].
+implemented as a thin wrapper on top of [Drakma].
+
+This package is still in the early stages of development.
 
 [WWW::Mechanize]: http://search.cpan.org/dist/WWW-Mechanize/lib/WWW/Mechanize.pm
 [Drakma]: http://weitz.de/drakma
