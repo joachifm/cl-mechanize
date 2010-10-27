@@ -2,17 +2,32 @@
 
 (in-package :cl-mechanize)
 
-(defvar *user-agent* "cl-mechanize/0.0"
-  "User agent string used by GET.")
-(defvar *cookie-jar* nil
-  "The current cookie jar object. Updated automatically by GET.")
-(defvar *history* nil
-  "A list of pages, in chronological order.")
-(defvar *page* nil
-  "The current page object. Updated automatically by GET.")
-(defvar *status* nil
-  "The HTTP status code of the last request.")
-(defvar *state-mutex* (sb-thread:make-mutex :name "State lock"))
+(defparameter *user-agent* "cl-mechanize/0.0"
+  "Default User-Agent string.")
+
+(defclass browser ()
+  ((user-agent
+    :initarg :user-agent
+    :initform *user-agent*
+    :accessor browser-user-agent
+    :documentation "Use agent string used by GET.")
+   (cookie-jar
+    :initform (make-instance 'drakma:cookie-jar)
+    :accessor browser-cookie-jar
+    :documentation "The current cookie jar object. Updated by FETCH.")
+   (history
+    :initform nil
+    :accessor browser-history
+    :documentation "A list of visited pages, in chronological order.")
+   (page
+    :initform nil
+    :accessor browser-page
+    :documentation "The current page object. Updated by FETCH.")
+   (status
+    :initform nil
+    :accessor browser-status
+    :documentation "The HTTP status code of the last request."))
+  (:documentation "Encapsulates the browser state."))
 
 (defclass form ()
   ((name
@@ -71,82 +86,58 @@
     :accessor page-content))
   (:documentation "Contains the result of fetching a page."))
 
-(defun get-history ()
-  "Get the list of visited pages, in chronological order."
-  (sb-thread:with-mutex (*state-mutex*)
-    *history*))
+(defun fetch (uri browser &key (method :get) parameters)
+  "Send a request and fetch the response."
+  (multiple-value-bind (body status)
+      (drakma:http-request uri
+                           :user-agent (browser-user-agent browser)
+                           :method method
+                           :parameters parameters)
+    (let ((dom (chtml:parse body (stp:make-builder)))
+          (links nil)
+          (forms nil))
+      (stp:do-recursively (n dom)
+        (when (typep n 'stp:element)
+          (cond ((equal (stp:local-name n) "a")
+                 (push (make-instance 'link
+                                      :text (stp:string-value n)
+                                      :uri (puri:parse-uri (stp:attribute-value n "href"))
+                                      :url (stp:attribute-value n "href")
+                                      :tag :a)
+                       links))
+                ((equal (stp:local-name n) "form")
+                 (push (make-instance 'form
+                                      :name (stp:attribute-value n "name")
+                                      :action (stp:attribute-value n "action"))
+                       forms)))))
+      (let ((page (make-instance 'page
+                                 :uri uri
+                                 :links (nreverse links)
+                                 :forms (nreverse forms)
+                                 :dom dom
+                                 :content body)))
+        (setf (browser-page browser) page
+              (browser-status browser) status)
+        (push page (browser-history browser))
+        page))))
 
-(defun get-cookies ()
-  "Get cookie jar."
-  (sb-thread:with-mutex (*state-mutex*)
-    *cookie-jar*))
-
-(defun get-page ()
-  "Get current page."
-  (sb-thread:with-mutex (*state-mutex*)
-    *page*))
-
-(defun get-status ()
-  "Get the HTTP status code of the last request."
-  (sb-thread:with-mutex (*state-mutex*)
-    *status*))
-
-(defun fetch (uri &key (method :get) parameters)
-  "Send a request and fetch the response.
-Handles cookies and history automatically."
-  (sb-thread:with-mutex (*state-mutex*)
-    (when (null *cookie-jar*)
-      (setf *cookie-jar*
-            (make-instance 'drakma:cookie-jar)))
-    (multiple-value-bind (body status)
-        (drakma:http-request uri
-                             :user-agent *user-agent*
-                             :method method
-                             :parameters parameters)
-      (let ((dom (chtml:parse body (stp:make-builder)))
-            (links nil)
-            (forms nil))
-        (stp:do-recursively (n dom)
-          (when (typep n 'stp:element)
-            (cond ((equal (stp:local-name n) "a")
-                   (push (make-instance 'link
-                                        :text (stp:string-value n)
-                                        :uri (puri:parse-uri (stp:attribute-value n "href"))
-                                        :url (stp:attribute-value n "href")
-                                        :tag :a)
-                         links))
-                  ((equal (stp:local-name n) "form")
-                   (push (make-instance 'form
-                                        :name (stp:attribute-value n "name")
-                                        :action (stp:attribute-value n "action"))
-                         forms)))))
-        (setf *page*
-              (make-instance 'page
-                             :uri uri
-                             :links (nreverse links)
-                             :forms (nreverse forms)
-                             :dom dom
-                             :content body))
-        (setf *status* status)
-        (push *page* *history*)
-        *page*))))
-
-(defun submit (form)
-  "Submit a form."
+(defun submit (form browser)
+  "Submit a form on the current page."
   (declare (type form form))
-  (sb-thread:with-mutex (*state-mutex*)
-    (fetch (puri:merge-uris (form-action form)
-                            (page-uri *page*))
-           :method (form-method form)
-           :parameters (form-inputs form))))
+  (fetch (puri:merge-uris (form-action form)
+                          (page-uri (browser-page browser)))
+         browser
+         :method (form-method form)
+         :parameters (form-inputs form)))
 
-(defun follow (link)
-  "Follow a link."
+(defun follow (link browser)
+  "Follow a link on the current page."
   (declare (type link link))
-  (sb-thread:with-mutex (*state-mutex*)
-    (fetch (puri:merge-uris (link-uri link)
-                            (page-uri *page*)))))
+  (fetch (puri:merge-uris (link-uri link)
+                          (page-uri (browser-page browser)))
+         browser))
 
+#|
 (defun back ()
   "Go back in history."
   (sb-thread:with-mutex (*state-mutex*)
@@ -161,3 +152,4 @@ Handles cookies and history automatically."
     (let ((cur (car *history*)))
       (let ((*history* nil))
         (follow cur)))))
+|#

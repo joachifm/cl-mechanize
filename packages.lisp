@@ -4,6 +4,13 @@
   (:use :cl)
   (:nicknames :browser :mechanize :net.browser)
   (:export #:*user-agent*
+           ;; Classes
+           #:browser
+           #:browser-user-agent
+           #:browser-cookie-jar
+           #:browser-history
+           #:browser-page
+           #:browse-status
            #:form
            #:form-name
            #:form-action
@@ -20,15 +27,10 @@
            #:page-forms
            #:page-dom
            #:page-content
-           #:get-history
-           #:get-cookies
-           #:get-page
-           #:get-status
+           ;; Methods
            #:fetch
            #:submit
-           #:follow
-           #:back
-           #:reload))
+           #:follow))
 
 (defpackage :cl-mechanize-user
   (:use :cl :cl-mechanize)

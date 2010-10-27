@@ -18,20 +18,26 @@ This package is still in the early stages of development.
     ;; Load system
     (require :asdf)
     (asdf:operate 'asdf:load-op :cl-mechanize)
-    (in-package :cl-mechanize-user)
+    (in-packge :cl-mechanize-user)
+
+    ;; Create browser object
+    (defvar *browser* (make-instance 'browser)
 
     ;; Do a google search
-    (fetch "http://www.google.com")
-    (let* ((page (get-page))
-           (search-form (car (page-forms page))))
-      (setf (form-inputs search-form)
-            '(("q" . "google")))
-      (submit search-form)
-      (format t "~A~%" (ppcre:all-matches-as-strings "<title>[a-z].*</title>"
-                                                     (page-content page)))
-      (dolist (link (page-links page))
-        (format t "~A~%" (link-text link))))
+    (fetch "http://www.google.com" *browser*)
 
-    ;; Traverse the DOM
-    (stp:do-recursively (n (page-dom (get-page)))
-      ..)
+    (let* ((page (browser-page *browser*))
+           (search-from (car (page-forms page))))
+      (setf (form-inputs search-from)
+            '(("q" . "google")))
+      (submit search-from *browser*)
+
+      (let ((results (browser-page *browser*)))
+        (format t "~A~%" (ppcre:all-matches-as-strings "<title>[a-z].*</title>"
+                                                     (page-content results)))
+        (dolist (link (page-links results))
+          (format t "~A~%" (link-text link)))
+
+        ;; Traverse the DOM
+        (stp:do-recursively (n (page-dom results))
+            ...)))
