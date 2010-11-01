@@ -2,7 +2,10 @@
 
 (in-package :cl-mechanize)
 
-(defparameter *user-agent* "cl-mechanize/0.0"
+(defparameter *user-agent*
+  (format nil "cl-mechanize/0.0 (~A ~A)"
+          (lisp-implementation-type)
+          (lisp-implementation-version))
   "Default User-Agent string.")
 
 (defclass browser ()
