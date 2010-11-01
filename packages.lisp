@@ -1,3 +1,5 @@
+#-(or sbcl) (error "Implementation not supported.")
+
 (in-package :cl-user)
 
 (defpackage :cl-mechanize

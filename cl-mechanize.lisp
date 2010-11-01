@@ -1,5 +1,3 @@
-#-(or sbcl) (error "Implementation not supported.")
-
 (declaim (optimize (debug 3) (safety 3)))
 
 (in-package :cl-mechanize)
