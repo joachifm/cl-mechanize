@@ -41,3 +41,12 @@ This package is still in the early stages of development.
         ;; Traverse the DOM
         (stp:do-recursively (n (page-dom results))
             ...)))
+
+# Compatibility
+cl-mechanize is compatible with recent versions of [SBCL]. It has been tested
+with [CLISP], but while the package itself does not use any
+implementation-specific code, some of the libraries it relies on are
+incompatible with CLISP.
+
+[SBCL]: http://sbcl.org/
+[CLISP]: http://clisp.sourceforge.net/
