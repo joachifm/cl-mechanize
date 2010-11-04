@@ -146,19 +146,10 @@
                           (page-uri (browser-page browser)))
          browser))
 
-#|
-(defun back ()
+(defun back (browser)
   "Go back in history."
-  (sb-thread:with-mutex (*state-mutex*)
-    (pop *history*)
-    (let ((prev (car *history*)))
-      (let ((*history* nil))
-        (follow prev)))))
+   (error "BACK not implemented."))
 
-(defun reload ()
+(defun reload (browser)
   "Repeat the current request."
-  (sb-thread:with-mutex (*state-mutex*)
-    (let ((cur (car *history*)))
-      (let ((*history* nil))
-        (follow cur)))))
-|#
+  (error "RELOAD is not implemented."))

@@ -32,7 +32,9 @@
            ;; Methods
            #:fetch
            #:submit
-           #:follow))
+           #:follow
+           #:back
+           #:reload))
 
 (defpackage :cl-mechanize-user
   (:use :cl :cl-mechanize)
