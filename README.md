@@ -10,6 +10,10 @@ This package is still in the early stages of development.
 # Getting
 `git clone git://github.com/joachifm/cl-mechanize.git cl-mechanize`
 
+Use [QuickLisp] to easily install the dependencies.
+
+[QuickLisp]: http://quicklisp.org/
+
 # Usage
 
     $ cd cl-mechanize
