@@ -148,8 +148,10 @@
 
 (defun back (browser)
   "Go back in history."
+  (declare (ignore browser))
    (error "BACK not implemented."))
 
 (defun reload (browser)
   "Repeat the current request."
+  (declare (ignore browser))
   (error "RELOAD is not implemented."))
