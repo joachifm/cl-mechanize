@@ -13,7 +13,7 @@
     :initarg :user-agent
     :initform *user-agent*
     :accessor browser-user-agent
-    :documentation "Use agent string used by GET.")
+    :documentation "User-Agent string used by GET.")
    (cookie-jar
     :initform (make-instance 'drakma:cookie-jar)
     :accessor browser-cookie-jar
