@@ -8,6 +8,21 @@
           (lisp-implementation-version))
   "Default User-Agent string.")
 
+(defparameter *cookie-jar-dir* (merge-pathnames "cookies-drakma"
+                                                (user-homedir-pathname))
+  "Folder where cookies are stored.
+Set to NIL to disable storing/loading cookies to/from disk.")
+
+(defparameter *accept-cookies-p* t
+  "Accept cookies from visited sites?")
+
+(defparameter *cookie-lifetime-policy* :session
+  "How long to keep cookies.
+
+Setting to :EXPIRY keeps cookies until they expire
+
+Setting to :SESSION does not store any cookies.")
+
 (defclass browser ()
   ((user-agent
     :initarg :user-agent
