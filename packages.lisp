@@ -1,4 +1,4 @@
-#-(or sbcl) (error "Implementation not supported.")
+#-(or ccl clisp sbcl) (error "Implementation not supported.")
 
 (in-package :cl-user)
 
