@@ -16,13 +16,16 @@ Use [QuickLisp] to easily install the dependencies.
 
 # Usage
 
-    $ cd cl-mechanize
-    $ sbcl
+    $ lisp
+
+    ;; Add system definition to the ASDF search path
+    (pushnew (merge-pathnames "relative/path/to/cl-mechanize"
+                              (user-homedir-pathname))
+             asdf:*central-registry*)
 
     ;; Load system
-    (require :asdf)
     (asdf:operate 'asdf:load-op :cl-mechanize)
-    (in-packge :cl-mechanize-user)
+    (in-package :cl-mechanize-user)
 
     ;; Create browser object
     (defvar *browser* (make-instance 'browser)
