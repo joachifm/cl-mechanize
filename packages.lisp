@@ -26,6 +26,7 @@
    #:link
    #:link-text
    #:link-uri
+   #:link-url
    #:link-tag
    #:link-attrs
    #:page
